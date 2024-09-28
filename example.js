@@ -17,6 +17,7 @@ function getAllData() {
   });
 }
 
+getAllData();
 // get data based on a condition
 function get() {
   dataSheet
