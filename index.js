@@ -1,15 +1,21 @@
+async function loadFetch() {
+  return await import('node-fetch');
+}
+const fetch = async (...args) => (await loadFetch()).default(...args);
+
 class Sheet {
   sheet = null;
   doc_id = null;
   _dataset = [];
   _isloading = false;
+
   /**
-   *
+   * 
    * @param {String} doc_id Document ID or URL of the Google Sheet
    * @param {String} sheet Sheet Name
    */
   constructor(doc_id, sheet) {
-    if (doc_id.includes("http")) {
+    if (doc_id.includes('http')) {
       this.doc_id = doc_id.split(`/`)[5];
     } else {
       this.doc_id = doc_id;
@@ -17,14 +23,16 @@ class Sheet {
     this.sheet = sheet;
     this.reload();
   }
+
   async all() {
     while (this._isloading) {
       await new Promise((r) => setTimeout(r, 100));
     }
     return this._dataset;
   }
+
   /**
-   *
+   * 
    * @param {Object} where Search by column name
    * @param {Boolean} combine Combine all results
    */
@@ -38,63 +46,63 @@ class Sheet {
     for (let i = 0; i < whereKeys.length; i++) {
       let thisFilData = [];
       const key = whereKeys[i];
-      if (typeof where[key] === "object") {
+      if (typeof where[key] === 'object') {
         let opKeys = Object.keys(where[key]);
         if (opKeys.length > 2)
-          throw Error("Condition error. Can not be filtered with more than");
-        let cond_letterset = opKeys.join(" ");
-        if (cond_letterset === ">") {
-          // grater than function
+          throw Error('Condition error. Can not be filtered with more than');
+        let cond_letterset = opKeys.join(' ');
+        if (cond_letterset === '>') {
+          // greater than function
           thisFilData = dt.filter((v) => {
             return v[key] > where[key][opKeys[0]];
           });
         }
-        if (cond_letterset === "<") {
-          //less than function
+        if (cond_letterset === '<') {
+          // less than function
           thisFilData = dt.filter((v) => {
             return v[key] < where[key][opKeys[0]];
           });
         }
-        if (cond_letterset === "<=") {
+        if (cond_letterset === '<=') {
           // less than or equal function
           thisFilData = dt.filter((v) => {
             return v[key] <= where[key][opKeys[0]];
           });
         }
-        if (cond_letterset === ">=") {
-          // grater than or equal function
+        if (cond_letterset === '>=') {
+          // greater than or equal function
           thisFilData = dt.filter((v) => {
             return v[key] >= where[key][opKeys[0]];
           });
         }
-        if (cond_letterset === "<= >" || cond_letterset === "> <=") {
+        if (cond_letterset === '<= >' || cond_letterset === '> <=') {
           // between
-          let gTe = where[key]["<="];
-          let lT = where[key][">"];
+          let gTe = where[key]['<='];
+          let lT = where[key]['>'];
           thisFilData = dt.filter((v) => {
             return v[key] <= gTe && v[key] > lT;
           });
         }
-        if (cond_letterset === "< >=" || cond_letterset === ">= <") {
+        if (cond_letterset === '< >=' || cond_letterset === '>= <') {
           // between
-          let gT = where[key]["<"];
-          let lTe = where[key][">="];
+          let gT = where[key]['<'];
+          let lTe = where[key]['>='];
           thisFilData = dt.filter((v) => {
             return v[key] < gT && v[key] >= lTe;
           });
         }
-        if (cond_letterset === "< >" || cond_letterset === "> <") {
+        if (cond_letterset === '< >' || cond_letterset === '> <') {
           // between
-          let gT = where[key]["<"];
-          let lT = where[key][">"];
+          let gT = where[key]['<'];
+          let lT = where[key]['>'];
           thisFilData = dt.filter((v) => {
             return v[key] < gT && v[key] > lT;
           });
         }
-        if (cond_letterset === "<= >=" || cond_letterset === ">= <=") {
+        if (cond_letterset === '<= >=' || cond_letterset === '>= <=') {
           // between
-          let gTe = where[key]["<="];
-          let lTe = where[key][">="];
+          let gTe = where[key]['<='];
+          let lTe = where[key]['>='];
           thisFilData = dt.filter((v) => {
             return v[key] <= gTe && v[key] >= lTe;
           });
@@ -123,6 +131,7 @@ class Sheet {
       return data;
     }
   }
+
   reload() {
     this._isloading = true;
     fetch(
@@ -130,16 +139,16 @@ class Sheet {
     ).then(async (response) => {
       const csv = await response.text();
       const data = [];
-      const lines = csv.split("\n");
-      const header = lines.shift().split(",");
+      const lines = csv.split('\n');
+      const header = lines.shift().split(',');
       lines.forEach((line) => {
         const row = line.substring(1).slice(0, -1).split(`","`);
         if (row.length === header.length) {
           const rowData = {};
           header.forEach((key, index) => {
-            rowData[`${key}`.replace(/"/g, "")] = `${row[index]}`.replace(
+            rowData[`${key}`.replace(/"/g, '')] = `${row[index]}`.replace(
               /"/g,
-              ""
+              ''
             );
           });
           data.push(rowData);
@@ -151,4 +160,5 @@ class Sheet {
   }
 }
 
+// Export the Sheet class
 module.exports = Sheet;

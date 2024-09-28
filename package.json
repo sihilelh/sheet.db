@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/sihilelh/gsheet.db/issues"
   },
-  "homepage": "https://github.com/sihilelh/gsheet.db#readme"
+  "homepage": "https://github.com/sihilelh/gsheet.db#readme",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
 }
